@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_fleet_vehicle_custom,access_fleet_vehicle_custom,model_fleet_vehicle_custom,base.group_user,1,1,1,1
+access_fleet_trip,access_fleet_trip,model_fleet_trip,base.group_user,1,1,1,1
+access_fleet_fuel_log,access_fleet_fuel_log,model_fleet_fuel_log,base.group_user,1,1,1,1
+access_fleet_maintenance_custom,access_fleet_maintenance_custom,model_fleet_maintenance_custom,base.group_user,1,1,1,1

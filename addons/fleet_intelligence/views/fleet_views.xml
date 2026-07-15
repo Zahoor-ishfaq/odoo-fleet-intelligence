@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Vehicle Views -->
+    <record id="view_fleet_vehicle_tree" model="ir.ui.view">
+        <field name="name">fleet.vehicle.custom.tree</field>
+        <field name="model">fleet.vehicle.custom</field>
+        <field name="arch" type="xml">
+            <tree decoration-danger="maintenance_prediction=='overdue'"
+                  decoration-warning="maintenance_prediction=='due_soon'"
+                  decoration-success="maintenance_prediction=='ok'">
+                <field name="plate_number"/>
+                <field name="make"/>
+                <field name="model"/>
+                <field name="year"/>
+                <field name="odometer"/>
+                <field name="status"/>
+                <field name="maintenance_prediction" widget="badge"
+                       decoration-danger="maintenance_prediction=='overdue'"
+                       decoration-warning="maintenance_prediction=='due_soon'"
+                       decoration-success="maintenance_prediction=='ok'"/>
+                <field name="maintenance_risk_score"/>
+                <field name="prediction_last_updated"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_fleet_vehicle_form" model="ir.ui.view">
+        <field name="name">fleet.vehicle.custom.form</field>
+        <field name="model">fleet.vehicle.custom</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="plate_number"/>
+                            <field name="make"/>
+                            <field name="model"/>
+                            <field name="year"/>
+                        </group>
+                        <group>
+                            <field name="status"/>
+                            <field name="odometer"/>
+                        </group>
+                    </group>
+                    <group string="ML Predictions">
+                        <group>
+                            <field name="maintenance_prediction" widget="badge"
+                                   decoration-danger="maintenance_prediction=='overdue'"
+                                   decoration-warning="maintenance_prediction=='due_soon'"
+                                   decoration-success="maintenance_prediction=='ok'"/>
+                            <field name="maintenance_risk_score"/>
+                        </group>
+                        <group>
+                            <field name="prediction_last_updated"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Trips">
+                            <field name="trip_ids"/>
+                        </page>
+                        <page string="Fuel Logs">
+                            <field name="fuel_log_ids"/>
+                        </page>
+                        <page string="Maintenance">
+                            <field name="maintenance_ids"/>
+                        </page>
+                        <page string="Notes">
+                            <field name="notes"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_fleet_vehicle" model="ir.actions.act_window">
+        <field name="name">Vehicles</field>
+        <field name="res_model">fleet.vehicle.custom</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Trip Views -->
+    <record id="view_fleet_trip_tree" model="ir.ui.view">
+        <field name="name">fleet.trip.tree</field>
+        <field name="model">fleet.trip</field>
+        <field name="arch" type="xml">
+            <tree decoration-danger="profit&lt;0" decoration-success="profit&gt;0">
+                <field name="name"/>
+                <field name="vehicle_id"/>
+                <field name="driver_name"/>
+                <field name="origin"/>
+                <field name="destination"/>
+                <field name="distance_km"/>
+                <field name="revenue"/>
+                <field name="cost"/>
+                <field name="profit"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_fleet_trip_form" model="ir.ui.view">
+    <field name="name">fleet.trip.form</field>
+    <field name="model">fleet.trip</field>
+    <field name="arch" type="xml">
+        <form>
+            <header>
+                <button name="action_generate_invoice"
+                        string="Generate Invoice"
+                        type="object"
+                        class="btn-primary"
+                        invisible="state == 'invoiced'"/>
+                <field name="state" widget="statusbar" statusbar_visible="draft,done,invoiced"/>
+            </header>
+            <sheet>
+                <group>
+                    <group>
+                        <field name="name"/>
+                        <field name="vehicle_id"/>
+                        <field name="driver_name"/>
+                        <field name="partner_id"/>
+                    </group>
+                    <group>
+                        <field name="start_time"/>
+                        <field name="end_time"/>
+                        <field name="distance_km"/>
+                    </group>
+                </group>
+                <group>
+                    <group>
+                        <field name="origin"/>
+                        <field name="destination"/>
+                    </group>
+                    <group>
+                        <field name="revenue"/>
+                        <field name="cost"/>
+                        <field name="profit"/>
+                        <field name="currency_id" invisible="1"/>
+                    </group>
+                </group>
+                <group string="Invoice" invisible="state != 'invoiced'">
+                    <field name="invoice_id" readonly="1"/>
+                </group>
+            </sheet>
+        </form>
+    </field>
+</record>
+
+    <record id="action_fleet_trip" model="ir.actions.act_window">
+        <field name="name">Trips</field>
+        <field name="res_model">fleet.trip</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Fuel Log Views -->
+    <record id="view_fleet_fuel_log_tree" model="ir.ui.view">
+        <field name="name">fleet.fuel.log.tree</field>
+        <field name="model">fleet.fuel.log</field>
+        <field name="arch" type="xml">
+            <tree decoration-danger="anomaly_status=='anomaly'">
+                <field name="name"/>
+                <field name="vehicle_id"/>
+                <field name="date"/>
+                <field name="liters"/>
+                <field name="cost"/>
+                <field name="price_per_liter"/>
+                <field name="odometer"/>
+                <field name="anomaly_status" widget="badge"
+                       decoration-danger="anomaly_status=='anomaly'"
+                       decoration-success="anomaly_status=='normal'"/>
+                <field name="anomaly_score"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_fleet_fuel_log_form" model="ir.ui.view">
+        <field name="name">fleet.fuel.log.form</field>
+        <field name="model">fleet.fuel.log</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="vehicle_id"/>
+                            <field name="date"/>
+                        </group>
+                        <group>
+                            <field name="liters"/>
+                            <field name="cost"/>
+                            <field name="price_per_liter"/>
+                            <field name="odometer"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                    </group>
+                    <group string="Anomaly Detection">
+                        <group>
+                            <field name="anomaly_status" widget="badge"
+                                   decoration-danger="anomaly_status=='anomaly'"
+                                   decoration-success="anomaly_status=='normal'"/>
+                            <field name="anomaly_score"/>
+                        </group>
+                        <group>
+                            <field name="prediction_last_updated"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_fleet_fuel_log" model="ir.actions.act_window">
+        <field name="name">Fuel Logs</field>
+        <field name="res_model">fleet.fuel.log</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Maintenance Views -->
+    <record id="view_fleet_maintenance_tree" model="ir.ui.view">
+        <field name="name">fleet.maintenance.custom.tree</field>
+        <field name="model">fleet.maintenance.custom</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="vehicle_id"/>
+                <field name="maintenance_type"/>
+                <field name="date"/>
+                <field name="cost"/>
+                <field name="next_due_km"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_fleet_maintenance_form" model="ir.ui.view">
+        <field name="name">fleet.maintenance.custom.form</field>
+        <field name="model">fleet.maintenance.custom</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="vehicle_id"/>
+                            <field name="maintenance_type"/>
+                            <field name="date"/>
+                        </group>
+                        <group>
+                            <field name="cost"/>
+                            <field name="odometer_at_service"/>
+                            <field name="next_due_km"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                    </group>
+                    <group string="Notes">
+                        <field name="notes" nolabel="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_fleet_maintenance" model="ir.actions.act_window">
+        <field name="name">Maintenance</field>
+        <field name="res_model">fleet.maintenance.custom</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Menus -->
+    <menuitem id="menu_fleet_intelligence_root"
+              name="Fleet Intelligence"
+              action="action_fleet_dashboard"
+              sequence="10"/>
+
+    <menuitem id="menu_fleet_dashboard"
+              name="Dashboard"
+              parent="menu_fleet_intelligence_root"
+              action="action_fleet_dashboard"
+              sequence="1"/>
+
+    <menuitem id="menu_fleet_vehicles"
+              name="Vehicles"
+              parent="menu_fleet_intelligence_root"
+              action="action_fleet_vehicle"
+              sequence="10"/>
+
+    <menuitem id="menu_fleet_trips"
+              name="Trips"
+              parent="menu_fleet_intelligence_root"
+              action="action_fleet_trip"
+              sequence="20"/>
+
+    <menuitem id="menu_fleet_fuel_logs"
+              name="Fuel Logs"
+              parent="menu_fleet_intelligence_root"
+              action="action_fleet_fuel_log"
+              sequence="30"/>
+
+    <menuitem id="menu_fleet_maintenance"
+              name="Maintenance"
+              parent="menu_fleet_intelligence_root"
+              action="action_fleet_maintenance"
+              sequence="40"/>
+
+</odoo>
